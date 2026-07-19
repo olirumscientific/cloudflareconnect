@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Olirum Scientific | B2B Laboratory Equipment</title>
+    <!-- Import Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Montserrat:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="Assets/Logo.png">
+    <style>
+        /* Cart Badge Styling */
+        .cart-badge {
+            background-color: #ef4444; /* Notification Red */
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 999px; /* Creates the perfect pill shape */
+            display: inline-block;
+            min-width: 10px;
+            text-align: center;
+            vertical-align: middle;
+            margin-left: 5px;
+            box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
+        }
+    </style>
+</head>
+<body>
+    
+    <!-- TOAST CONTAINER (This handles the slide-in animations) -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- THE NAVBAR -->
+    <header class="navbar">
+        <div class="nav-brand">
+    <a href="#home" style="display: flex; align-items: center; gap: 10px; text-decoration: none;">
+        <img src="Assets/Logo.png" alt="Olirum Scientific Logo" style="height: 50px; width: auto;">
+        <span>Olirum Scientific</span>
+    </a>
+</div>
+        
+        
+        <!-- Hamburger Icon for Mobile -->
+        <div class="menu-toggle" id="mobile-menu" onclick="toggleMenu()">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+        </div>
+
+        <!-- FIX 2: Updated all links to use pure URL hashes instead of onclick functions -->
+        <nav class="nav-links" id="nav-links">
+            <a href="#home">Home</a>
+            
+            <!-- Category 1: Cellular Assays -->
+            <div class="dropdown">
+                <a href="#category-1">Cellular Assays ▾</a>
+                <div class="dropdown-content">
+                    <a href="#product-1">FAVA</a>
+                    <a href="#product-2">DCFDA based ROS Detection kit</a>
+                    <a href="#product-3">Calcein AM</a>
+                </div>
+            </div>
+
+            <!-- Category 2: Microscopy -->
+            <div class="dropdown">
+                <a href="#category-2">Microscopy ▾</a>
+                <div class="dropdown-content">
+                    <a href="#product-4">Nova</a>
+                    <a href="#product-5">Supernova</a>
+                </div>
+            </div>
+
+            <!-- Category 3: Mycoplasma -->
+            <div class="dropdown">
+                <a href="#category-3">Mycoplasma ▾</a>
+                <div class="dropdown-content">
+                    <a href="#product-6">MaRK</a>
+                    <a href="#product-7">MaD</a>
+                </div>
+            </div>
+            
+            <a href="#all-products">All Products</a>
+            <a href="#testimonials">Testimonials</a>
+            <a href="#about" >About Us</a>
+            <a href="#cart" class="cart-link">
+                Quote Cart <span id="cart-count" class="cart-badge">0</span>
+            </a>
+            <li class="search-container" style="position: relative; display: flex; align-items: center;">
+    <button id="search-icon-btn" onclick="toggleSearch(event)" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #1e40af; padding: 5px;">🔍</button>
+    
+    <!-- The Dropdown Search Bar -->
+    <div id="dynamic-search-wrapper" style="position: absolute; top: 130%; right: 0; width: 0; opacity: 0; visibility: hidden; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 9999; background: white; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+        <input type="text" id="dynamic-search-input" placeholder="Search products..." onkeyup="handleSearch(event)" style="width: 100%; padding: 12px 15px; border: 1px solid #e2e8f0; border-radius: 8px; outline: none; box-sizing: border-box; font-size: 1rem;">
+    </div>
+</li>
+        </nav>
+    </header>
+
+    <!-- THE DYNAMIC CONTENT AREA -->
+    <main id="app-content" class="container">
+        <!-- Content loads here via JS -->
+    </main>
+
+    <!-- THE FOOTER -->
+    <footer class="footer">
+        <div class="container footer-grid">
+            <div class="footer-col">
+                <h3>Olirum Scientific</h3>
+                <p>Precision laboratory equipment and B2B solutions for modern research facilities.</p>
+            </div>
+            <div class="footer-col">
+                <h3>Contact Us</h3>
+                <p>📞 +91 (123) 456-7890</p>
+                <p>✉️ admin@olirumscientific.com</p>
+                <p>📍 AIC SEED, IISER Pune, Maharashtra, India</p>
+            </div>
+            <div class="footer-col">
+                <h3>Quick Links</h3>
+                <p><a href="#">LinkedIn</a></p>
+                <!-- <p><a href="#">Quality Assurance</a></p>
+                <p><a href="#">Privacy Policy</a></p> -->
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Olirum Scientific. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="main.js"></script>
+</body>
+</html>

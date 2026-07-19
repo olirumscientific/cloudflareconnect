@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Olirum Scientific</title>
+    <style>
+        body { font-family: system-ui, -apple-system, sans-serif; background: #f8fafc; margin: 0; padding: 40px 20px; color: #334155; }
+        .admin-container { max-width: 1000px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
+        h1, h2 { color: #0f172a; border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; margin-top: 0; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        .full-width { grid-column: 1 / -1; }
+        label { display: block; font-weight: 600; margin-bottom: 5px; font-size: 0.9rem; }
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px; box-sizing: border-box; font-family: inherit; }
+        textarea { resize: vertical; min-height: 120px; }
+        button { background: #2563eb; color: white; border: none; padding: 12px 24px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 1rem; width: 100%; transition: background 0.3s;}
+        button:hover { background: #1d4ed8; }
+        #status-msg { margin-top: 15px; text-align: center; font-weight: 600; padding: 10px; border-radius: 4px; display: none; }
+        table th { background: #f1f5f9; text-align: left; border-bottom: 2px solid #cbd5e1; padding: 12px; }
+        table td { padding: 12px; border-bottom: 1px solid #e2e8f0; }
+    </style>
+</head>
+<body>
+    <div id="quotes-dashboard">
+    <h2>Lead Dashboard</h2>
+    <button onclick="fetchQuotes()" id="load-quotes-btn">Load Recent Quotes</button>
+    
+    <table border="1" style="width: 100%; margin-top: 15px; text-align: left;">
+        <thead>
+            <tr>
+                <th>Quote ID</th>
+                <th>Buyer Name</th>
+                <th>Email</th>
+                <th>Company</th>
+                <th>Email Status</th>
+            </tr>
+        </thead>
+        <tbody id="quotes-table-body">
+            <!-- Leads will be injected here dynamically -->
+        </tbody>
+    </table>
+</div>
+
+    <div class="admin-container">
+        <h1>Catalog Manager: Add Product</h1>
+        
+        <form id="product-form" onsubmit="submitProduct(event)">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Product Name *</label>
+                    <input type="text" id="p-name" required>
+                </div>
+                <div class="form-group full-width" style="background: #f1f5f9; padding: 15px; border-radius: 4px; border: 1px dashed #cbd5e1;">
+                    <label style="color: #0f172a;">Admin Password *</label>
+                    <input type="password" id="admin-pass" required placeholder="Enter your secret key to authorize this upload">
+                </div>
+                <div class="form-group">
+                    <label>Category *</label>
+                    <select id="p-category" required>
+                        <option value="">Loading categories...</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Internal Price (INR) *</label>
+                    <input type="number" id="p-price" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label>PDF Protocol Link</label>
+                    <input type="text" id="p-download" placeholder="e.g. /protocols/fava.pdf">
+                </div>
+
+                <div class="form-group full-width">
+                    <label>Short Description</label>
+                    <textarea id="p-desc" placeholder="Brief overview for the product card..."></textarea>
+                </div>
+                
+                <div class="form-group full-width">
+                    <label>Specifications (HTML)</label>
+                    <textarea id="p-specs" placeholder="<ul><li>Volume: 100ul</li>...</ul>"></textarea>
+                </div>
+                
+                <div class="form-group full-width">
+                    <label>Validation & Reviews (HTML)</label>
+                    <textarea id="p-support" placeholder="<p>Tested on HEK293...</p>"></textarea>
+                </div>
+            </div>
+
+            <button type="submit">Publish to Catalog</button>
+            <div id="status-msg"></div>
+        </form>
+
+        <hr style="margin: 40px 0; border: 1px solid #e2e8f0;">
+
+        <!-- Product Management Table -->
+        <h2>Manage Catalog</h2>
+        <table style="width: 100%; border-collapse: collapse; background: white; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Price</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="admin-product-table-body">
+                <!-- Rows will be injected here via Javascript -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Hidden Edit Modal -->
+    <div id="edit-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000;">
+        <div style="background: white; padding: 30px; border-radius: 8px; width: 500px; max-width: 90%; max-height: 90vh; overflow-y: auto;">
+            <h2 style="margin-top: 0;">Edit Product</h2>
+            
+            <label>Name</label>
+            <input type="text" id="edit-name" style="width: 100%; margin-bottom: 15px; padding: 8px;">
+            
+            <label>Price</label>
+            <input type="number" id="edit-price" step="0.01" style="width: 100%; margin-bottom: 15px; padding: 8px;">
+            
+            <label>Short Description</label>
+            <textarea id="edit-desc" style="width: 100%; margin-bottom: 15px; padding: 8px;"></textarea>
+            
+            <div style="display: flex; gap: 10px;">
+                <button id="save-edit-btn" style="background: #10b981;">Save Changes</button>
+                <button onclick="document.getElementById('edit-modal').style.display='none'" style="background: #ef4444;">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://127.0.0.1:8000';
+
+        // 1. Fetch categories and products as soon as the page loads
+        window.onload = async function() {
+            try {
+                // Fetch Categories
+                const catResponse = await fetch(`${API_URL}/categories`);
+                const categories = await catResponse.json();
+                const select = document.getElementById('p-category');
+                select.innerHTML = '<option value="">Select a category</option>';
+                categories.forEach(cat => {
+                    const option = document.createElement('option');
+                    option.value = cat.id;
+                    option.textContent = cat.name;
+                    select.appendChild(option);
+                });
+
+                // Fetch Catalog for the Table
+                fetchAdminProducts();
+            } catch (error) {
+                console.error('Error on load:', error);
+                document.getElementById('p-category').innerHTML = '<option value="">Error loading data</option>';
+            }
+        };
+
+        // --- FETCH AND DISPLAY PRODUCTS FOR ADMIN TABLE ---
+        async function fetchAdminProducts() {
+            try {
+                const response = await fetch(`${API_URL}/admin/products`);
+                const products = await response.json();
+                
+                const tbody = document.getElementById('admin-product-table-body');
+                tbody.innerHTML = ''; 
+                
+                products.forEach(p => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${p.id}</td>
+                        <td style="font-weight: 500;">${p.name}</td>
+                        <td>₹${p.price.toFixed(2)}</td>
+                        <td>${p.is_archived ? '<span style="color: #ef4444; font-weight: bold;">Archived</span>' : '<span style="color: #10b981; font-weight: bold;">Active</span>'}</td>
+                        <td style="display: flex; gap: 8px;">
+                            <button onclick="openEditModal(${p.id}, '${p.name.replace(/'/g, "\\'")}', ${p.price}, '${(p.description || '').replace(/'/g, "\\'")}')" style="background: #eab308; padding: 5px 10px; width: auto; font-size: 0.85rem;">Edit</button>
+                            ${!p.is_archived ? `<button onclick="archiveProduct(${p.id})" style="background: #ef4444; padding: 5px 10px; width: auto; font-size: 0.85rem;">Archive</button>` : ''}
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (error) {
+                console.error('Error fetching admin products:', error);
+            }
+        }
+
+        // --- SUBMIT NEW PRODUCT ---
+        async function submitProduct(event) {
+            event.preventDefault(); 
+            
+            const statusDiv = document.getElementById('status-msg');
+            const submitBtn = document.querySelector('button[type="submit"]');
+            const adminPassword = document.getElementById('admin-pass').value;
+            
+            const productData = {
+                name: document.getElementById('p-name').value,
+                price: parseFloat(document.getElementById('p-price').value),
+                category_id: parseInt(document.getElementById('p-category').value),
+                description: document.getElementById('p-desc').value || null,
+                specs_html: document.getElementById('p-specs').value || null,
+                support_html: document.getElementById('p-support').value || null,
+                download_link: document.getElementById('p-download').value || null
+            };
+
+            try {
+                submitBtn.innerText = 'Publishing...';
+                submitBtn.disabled = true;
+
+                const response = await fetch(`${API_URL}/products`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'X-Admin-Token': adminPassword
+                    },
+                    body: JSON.stringify(productData)
+                });
+
+                if (response.ok) {
+                    statusDiv.style.display = 'block';
+                    statusDiv.style.background = '#dcfce7';
+                    statusDiv.style.color = '#166534';
+                    statusDiv.innerText = 'Product successfully added to catalog!';
+                    document.getElementById('product-form').reset();
+                    
+                    // Immediately refresh the table below
+                    fetchAdminProducts();
+                } else {
+                    const err = await response.json();
+                    throw new Error(err.detail || 'Failed to add product');
+                }
+            } catch (error) {
+                statusDiv.style.display = 'block';
+                statusDiv.style.background = '#fee2e2';
+                statusDiv.style.color = '#991b1b';
+                statusDiv.innerText = error.message || 'Error adding product.';
+            } finally {
+                submitBtn.innerText = 'Publish to Catalog';
+                submitBtn.disabled = false;
+                setTimeout(() => { statusDiv.style.display = 'none'; }, 4000);
+            }
+        }
+
+        // --- ARCHIVE FUNCTION ---
+        async function archiveProduct(productId) {
+            if (!confirm("Are you sure you want to archive this product? It will be hidden from the catalog.")) return;
+
+            try {
+                const response = await fetch(`${API_URL}/products/${productId}/archive`, {
+                    method: 'PUT'
+                });
+
+                if (response.ok) {
+                    fetchAdminProducts(); // Refresh the list
+                } else {
+                    alert("Failed to archive product.");
+                }
+            } catch (error) {
+                console.error("Error archiving:", error);
+            }
+        }
+
+        // --- OPEN EDIT MODAL ---
+        function openEditModal(id, name, price, desc) {
+            document.getElementById('edit-name').value = name;
+            document.getElementById('edit-price').value = price;
+            document.getElementById('edit-desc').value = desc;
+            
+            document.getElementById('save-edit-btn').onclick = () => submitEditProduct(id);
+            document.getElementById('edit-modal').style.display = 'flex';
+        }
+
+        // --- SUBMIT EDITS ---
+        async function submitEditProduct(productId) {
+            const updatedData = {
+                name: document.getElementById('edit-name').value,
+                price: parseFloat(document.getElementById('edit-price').value),
+                description: document.getElementById('edit-desc').value
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/products/${productId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updatedData)
+                });
+
+                if (response.ok) {
+                    document.getElementById('edit-modal').style.display = 'none';
+                    fetchAdminProducts();
+                } else {
+                    alert("Update failed.");
+                }
+            } catch (error) {
+                console.error("Error updating:", error);
+            }
+        }
+        async function fetchQuotes() {
+    // Prompt for the admin password (or retrieve it if you already have a login flow)
+    const adminPassword = prompt("Please enter the Admin Password to view leads:");
+    
+    if (!adminPassword) return;
+
+    try {
+        const response = await fetch("http://localhost:8000/admin/quotes", {
+            method: "GET",
+            headers: {
+                "x-admin-token": adminPassword
+            }
+        });
+
+        if (!response.ok) {
+            alert("Access Denied. Incorrect password or server error.");
+            return;
+        }
+
+        const quotes = await response.json();
+        const tableBody = document.getElementById("quotes-table-body");
+        
+        // Clear out any old rows before loading the new ones
+        tableBody.innerHTML = "";
+
+        quotes.forEach(quote => {
+            // Determine the color based on the status we logged in the database
+            let statusStyle = "color: green; font-weight: bold;";
+            if (quote.status === "Email Failed") {
+                statusStyle = "color: red; font-weight: bold;";
+            } else if (quote.status === "Pending") {
+                statusStyle = "color: orange;";
+            }
+
+            // Create a new row for each lead
+            const rowHtml = `
+                <tr>
+                    <td>#${quote.id}</td>
+                    <td>${quote.buyer_name}</td>
+                    <td>${quote.buyer_email}</td>
+                    <td>${quote.company || "N/A"}</td>
+                    <td style="${statusStyle}">${quote.status}</td>
+                </tr>
+            `;
+            tableBody.insertAdjacentHTML('beforeend', rowHtml);
+        });
+
+    } catch (error) {
+        console.error("Error fetching quotes:", error);
+        alert("Could not connect to the server. Is main.py running?");
+    }
+}
+    </script>
+</body>
+</html>
