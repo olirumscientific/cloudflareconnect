@@ -303,7 +303,7 @@
     if (!adminPassword) return;
 
     try {
-        const response = await fetch("http://localhost:8000/admin/quotes", {
+        const response = await fetch("https://renderbackend-t1iv.onrender.com/admin/quotes", {
             method: "GET",
             headers: {
                 "x-admin-token": adminPassword
