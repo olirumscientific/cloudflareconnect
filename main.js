@@ -432,9 +432,87 @@ function renderCartPage() {
         cartContainer.appendChild(row);
     });
 }
+//commented because render +gmail not working adn we will us below emailjs
+// async function submitQuote(event) {
+//     // 1. Stop the page from blinking/reloading
+//     if (event) {
+//         event.preventDefault();
+//     }
 
+//     const name = document.getElementById('buyer-name').value;
+//     const email = document.getElementById('buyer-email').value;
+//     const city = document.getElementById('buyer-city').value;
+//     const pincode = document.getElementById('buyer-pincode').value;
+//     const company = document.getElementById('buyer-company').value;
+
+//     if (!name || !email || !city || !pincode) {
+//         showToast("Please fill in all contact details.", "error");
+//         return;
+//     }
+
+//     if (quoteCart.length === 0) {
+//         showToast("Your quote cart is empty.", "error");
+//         return;
+//     }
+
+//     // --- NEW: Disable button and show loading state ---
+//     const submitBtn = document.getElementById('submit-btn');
+//     submitBtn.disabled = true;
+//     submitBtn.innerText = "Sending...";
+//     submitBtn.style.background = '#cbd5e1'; // Gray out the button
+//     // --------------------------------------------------
+
+//     const payload = {
+//         name: name,
+//         email: email,
+//         company: company,
+//         city: city,
+//         pincode: pincode,
+//         // Map 'qty' from your cart to 'quantity' for FastAPI
+//         items: quoteCart.map(item => ({
+//             id: item.id,            
+//             quantity: item.quantity
+//         }))
+//     };
+
+//     try {
+//         const response = await fetch(`${API_BASE_URL}/api/quotes`, {
+//             method: 'POST',
+//             headers: { 'Content-Type': 'application/json' },
+//             body: JSON.stringify(payload)
+//         });
+
+//         if (response.ok) {
+//             showToast("Quote requested successfully!", "success");
+            
+//             // 2. Reset the HTML form fields
+//             document.getElementById('quote-form').reset();
+            
+//             // 3. Clear cart and update UI
+//             quoteCart = []; 
+//             localStorage.setItem('quoteCart', JSON.stringify(quoteCart));
+//             updateCartBadge();
+            
+//             // 4. Re-render the page (this automatically resets the button state)
+//             renderCartPage(); 
+//         } else {
+//             showToast("Failed to submit quote.", "error");
+//             // --- NEW: Re-enable button on failure ---
+//             submitBtn.disabled = false;
+//             submitBtn.innerText = "Submit Request";
+//             submitBtn.style.background = 'var(--primary-blue)';
+//         }
+//     } catch (error) {
+//         console.error("Error submitting quote:", error);
+//         showToast("Network error. Please try again.", "error");
+//         // --- NEW: Re-enable button on failure ---
+//         submitBtn.disabled = false;
+//         submitBtn.innerText = "Submit Request";
+//         submitBtn.style.background = 'var(--primary-blue)';
+//     }
+// }
+// --- NEW submitQuote FUNCTION (WITH EMAILJS) ---
 async function submitQuote(event) {
-    // 1. Stop the page from blinking/reloading
     if (event) {
         event.preventDefault();
     }
@@ -443,7 +521,7 @@ async function submitQuote(event) {
     const email = document.getElementById('buyer-email').value;
     const city = document.getElementById('buyer-city').value;
     const pincode = document.getElementById('buyer-pincode').value;
-    const company = document.getElementById('buyer-company').value;
+    const company = document.getElementById('buyer-company').value || "Independent Researcher";
 
     if (!name || !email || !city || !pincode) {
         showToast("Please fill in all contact details.", "error");
@@ -455,57 +533,67 @@ async function submitQuote(event) {
         return;
     }
 
-    // --- NEW: Disable button and show loading state ---
     const submitBtn = document.getElementById('submit-btn');
     submitBtn.disabled = true;
     submitBtn.innerText = "Sending...";
-    submitBtn.style.background = '#cbd5e1'; // Gray out the button
-    // --------------------------------------------------
+    submitBtn.style.background = '#cbd5e1'; 
 
+    // 1. Prepare data for Render Database
     const payload = {
         name: name,
         email: email,
         company: company,
         city: city,
         pincode: pincode,
-        // Map 'qty' from your cart to 'quantity' for FastAPI
         items: quoteCart.map(item => ({
             id: item.id,            
             quantity: item.quantity
         }))
     };
 
+    // 2. Format cart items into a clean text list for the EmailJS template
+    let emailItemsText = "";
+    quoteCart.forEach(item => {
+        emailItemsText += `${item.quantity}x ${item.name}\n`;
+    });
+
     try {
+        // --- ACTION 1: SAVE TO RENDER DATABASE ---
         const response = await fetch(`${API_BASE_URL}/api/quotes`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
 
-        if (response.ok) {
-            showToast("Quote requested successfully!", "success");
-            
-            // 2. Reset the HTML form fields
-            document.getElementById('quote-form').reset();
-            
-            // 3. Clear cart and update UI
-            quoteCart = []; 
-            localStorage.setItem('quoteCart', JSON.stringify(quoteCart));
-            updateCartBadge();
-            
-            // 4. Re-render the page (this automatically resets the button state)
-            renderCartPage(); 
-        } else {
-            showToast("Failed to submit quote.", "error");
-            // --- NEW: Re-enable button on failure ---
-            submitBtn.disabled = false;
-            submitBtn.innerText = "Submit Request";
-            submitBtn.style.background = 'var(--primary-blue)';
+        if (!response.ok) {
+            throw new Error("Failed to save to database");
         }
+
+        // --- ACTION 2: SEND EMAIL VIA EMAILJS ---
+        // Ensure the keys here map exactly to your {{variables}} in the EmailJS template
+        await emailjs.send(
+            "service_x00vgxa",   // <-- Replace this from your EmailJS Dashboard
+            "template_w58swuh",  // <-- Replace this from your EmailJS Dashboard
+            {
+                user_name: name,
+                user_email: email,
+                product_name: emailItemsText,
+                message: `Institution: ${company} | Location: ${city}, ${pincode}` 
+            }
+        );
+
+        // --- ACTION 3: UI SUCCESS RESET ---
+        showToast("Quote requested successfully! Check your inbox.", "success");
+        
+        document.getElementById('quote-form').reset();
+        quoteCart = []; 
+        localStorage.setItem('quoteCart', JSON.stringify(quoteCart));
+        updateCartBadge();
+        renderCartPage(); 
+        
     } catch (error) {
         console.error("Error submitting quote:", error);
         showToast("Network error. Please try again.", "error");
-        // --- NEW: Re-enable button on failure ---
         submitBtn.disabled = false;
         submitBtn.innerText = "Submit Request";
         submitBtn.style.background = 'var(--primary-blue)';
