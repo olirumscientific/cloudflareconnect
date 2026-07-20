@@ -127,6 +127,18 @@
         </div>
     </footer>
 
+    <!-- ADDED: EmailJS SDK -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    
+    <!-- ADDED: EmailJS Initialization -->
+    <script type="text/javascript">
+       (function(){
+          // Replace this with your actual Public Key from the EmailJS Account settings
+          emailjs.init("CXP3r5IinhevalOUK"); 
+       })();
+    </script>
+
+    <!-- Existing Main Script -->
     <script src="main.js"></script>
 </body>
 </html>
