@@ -1,9 +1,9 @@
 // --- GLOBAL STATE ---
-// const API_URL = 'https://renderbackend-t1iv.onrender.com';
-const API_URL = 'http://127.0.0.1:8000';
+const API_URL = 'https://renderbackend-t1iv.onrender.com';
+// const API_URL = 'http://127.0.0.1:8000';
 // Add this at the very top of your main.js file
-// const API_BASE_URL = 'https://renderbackend-t1iv.onrender.com';
-const API_BASE_URL = 'http://127.0.0.1:8000';
+const API_BASE_URL = 'https://renderbackend-t1iv.onrender.com';
+// const API_BASE_URL = 'http://127.0.0.1:8000';
 let quoteCart = JSON.parse(localStorage.getItem('quoteCart')) || [];
 let allProductsCache = []; 
 
