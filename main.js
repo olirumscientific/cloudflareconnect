@@ -1,7 +1,9 @@
 // --- GLOBAL STATE ---
 const API_URL = 'https://renderbackend-t1iv.onrender.com';
+// const API_URL = 'http://127.0.0.1:8000';
 // Add this at the very top of your main.js file
 const API_BASE_URL = 'https://renderbackend-t1iv.onrender.com';
+// const API_BASE_URL = 'http://127.0.0.1:8000';
 let quoteCart = JSON.parse(localStorage.getItem('quoteCart')) || [];
 let allProductsCache = []; 
 
@@ -139,7 +141,6 @@ function filterCategory(categoryId) {
 // --- SINGLE PRODUCT VIEW (FULLY DYNAMIC MATRIX) ---
 function viewProduct(productId) {
     document.getElementById('nav-links').classList.remove('active'); 
-    window.currentImageIndex = 0; // Reset carousel for new product
     const contentArea = document.getElementById('app-content');
     
     const product = allProductsCache.find(p => p.id === productId);
@@ -147,6 +148,12 @@ function viewProduct(productId) {
         contentArea.innerHTML = `<h2 style="color: red; text-align: center; padding: 40px;">Product not found</h2>`;
         return;
     }
+
+    // NEW: Split the comma-separated string from the database into an array
+    // If no images exist, fallback to a placeholder
+    window.currentProductImages = product.images ? product.images.split(',') : ['images/placeholder.jpg'];
+    window.currentImageCaptions = product.image_captions ? product.image_captions.split(',') : ['Product Image'];
+    window.currentImageIndex = 0; // Reset carousel for new product
 
     const catNo = product.catalog_number || `OS-PROD-${product.id}`;
     const subTitle = product.subtitle || "Premium Laboratory Reagent";
@@ -158,8 +165,8 @@ function viewProduct(productId) {
             <!-- Left Side: Carousel -->
             <div style="position: relative; border-radius: 8px; overflow: hidden; min-height: 400px; display: flex; align-items: center; justify-content: center; background: #f8fafc; border: 1px solid #e2e8f0;" id="carousel-display-area">
                 
-                <!-- Main Image Placeholder (You will replace this with an actual <img> tag later) -->
-                <span id="carousel-main-text" style="color: var(--text-light); font-size: 1.5rem; font-weight: 500;">🔬 Main Product View</span>
+                <!-- NEW: Actual Image Tag replacing the text span -->
+                <img id="carousel-main-img" src="${window.currentProductImages[0]}" style="width: 100%; height: 100%; object-fit: contain; background: white;" alt="${product.name}">
 
                 <!-- Left Arrow -->
                 <button onclick="prevImage()" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.9); border: 1px solid #e2e8f0; border-radius: 50%; width: 45px; height: 45px; cursor: pointer; font-size: 1.2rem; color: var(--dark-slate); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: all 0.2s;">
@@ -170,14 +177,12 @@ function viewProduct(productId) {
                 <button onclick="nextImage()" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.9); border: 1px solid #e2e8f0; border-radius: 50%; width: 45px; height: 45px; cursor: pointer; font-size: 1.2rem; color: var(--dark-slate); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: all 0.2s;">
                     &#10095;
                 </button>
-                
-                <!-- Caption Bar -->
                 <div id="carousel-caption" style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(15, 23, 42, 0.8); color: white; padding: 15px 40px; text-align: center; font-size: 0.95rem; font-weight: 500; backdrop-filter: blur(4px);">
-                    Amber tubes ensure protection for light-sensitive fluorogenic dyes.
+                    ${window.currentImageCaptions[0] || ""}
                 </div>
             </div>
             
-            <!-- Right Side: Details -->
+            <!-- Right Side: Details (Remains completely unchanged) -->
             <div class="product-details-container" style="display: flex; flex-direction: column; justify-content: space-between;">
                 <div>
                     <span style="color: var(--text-light); font-size: 0.9rem; font-weight: 700; letter-spacing: 0.5px;">CAT NO. ${catNo}</span>
@@ -188,8 +193,6 @@ function viewProduct(productId) {
                         <span style="background: #eff6ff; color: var(--accent-blue); padding: 5px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600;">Store at -20°C</span>
                         <span style="background: #f0fdf4; color: #16a34a; padding: 5px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600;">Research Use Only</span>
                     </div>
-
-                    <!--<p style="font-size: 1.8rem; font-weight: 700; color: var(--dark-slate); margin-bottom: 20px;">Price: ₹${product.price ? product.price.toFixed(2) : "0.00"}</p>-->
                 </div>
                 
                 <div style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 15px;">
@@ -224,37 +227,65 @@ function viewProduct(productId) {
 // Carousel State Management
 window.currentImageIndex = 0;
 
-// Temporary placeholder data for your carousel. 
-// Later, you can add an 'images' array to your SQLite database for each product.
-window.carouselData = [
-    { text: "🔬 Main Product View", caption: "Amber tubes ensure protection for light-sensitive fluorogenic dyes.", bg: "#f8fafc" },
-    { text: "📊 Viability Timeline", caption: "Assay results demonstrating cell viability over a 48-hour period.", bg: "#f1f5f9" },
-    { text: "📊 HEK293 Response", caption: "Fluorescence intensity in HEK293 cells treated with varying concentrations.", bg: "#e2e8f0" },
-    { text: "🖼️ Counterstain Overlay", caption: "Epifluorescence microscopy overlaid with Hoechst nuclear stain.", bg: "#cbd5e1" }
-];
-
-window.updateCarousel = function() {
-    const displayArea = document.getElementById('carousel-display-area');
-    const mainText = document.getElementById('carousel-main-text');
-    const caption = document.getElementById('carousel-caption');
-    
-    const current = window.carouselData[window.currentImageIndex];
-    
-    // Update the UI
-    displayArea.style.background = current.bg;
-    mainText.innerText = current.text;
-    caption.innerText = current.caption;
-};
+// Carousel State Management
+window.currentImageIndex = 0;
+window.currentImageCaptions = [];
+window.currentProductImages = []; // Will hold the array of image paths for the active product
 
 window.nextImage = function() {
-    window.currentImageIndex = (window.currentImageIndex + 1) % window.carouselData.length;
-    window.updateCarousel();
+    if (window.currentProductImages.length === 0) return;
+    
+    // Move to the next image index, loop back to 0 if at the end
+    window.currentImageIndex = (window.currentImageIndex + 1) % window.currentProductImages.length;
+
+    
+    // Update the image source in the DOM
+    document.getElementById('carousel-main-img').src = window.currentProductImages[window.currentImageIndex];
+    document.getElementById('carousel-caption').innerText = window.currentImageCaptions[window.currentImageIndex] || "";
 };
 
 window.prevImage = function() {
-    window.currentImageIndex = (window.currentImageIndex - 1 + window.carouselData.length) % window.carouselData.length;
-    window.updateCarousel();
+    if (window.currentProductImages.length === 0) return;
+    
+    // Move to the previous image index, loop to the end if at the beginning
+    window.currentImageIndex = (window.currentImageIndex - 1 + window.currentProductImages.length) % window.currentProductImages.length;
+    
+    // Update the image source in the DOM
+    document.getElementById('carousel-main-img').src = window.currentProductImages[window.currentImageIndex];
+    document.getElementById('carousel-caption').innerText = window.currentImageCaptions[window.currentImageIndex] || "";
 };
+
+// Temporary placeholder data for your carousel. 
+// Later, you can add an 'images' array to your SQLite database for each product.
+// window.carouselData = [
+//     { text: "🔬 Main Product View", caption: "Amber tubes ensure protection for light-sensitive fluorogenic dyes.", bg: "#f8fafc" },
+//     { text: "📊 Viability Timeline", caption: "Assay results demonstrating cell viability over a 48-hour period.", bg: "#f1f5f9" },
+//     { text: "📊 HEK293 Response", caption: "Fluorescence intensity in HEK293 cells treated with varying concentrations.", bg: "#e2e8f0" },
+//     { text: "🖼️ Counterstain Overlay", caption: "Epifluorescence microscopy overlaid with Hoechst nuclear stain.", bg: "#cbd5e1" }
+// ];
+
+// window.updateCarousel = function() {
+//     const displayArea = document.getElementById('carousel-display-area');
+//     const mainText = document.getElementById('carousel-main-text');
+//     const caption = document.getElementById('carousel-caption');
+    
+//     const current = window.carouselData[window.currentImageIndex];
+    
+//     // Update the UI
+//     displayArea.style.background = current.bg;
+//     mainText.innerText = current.text;
+//     caption.innerText = current.caption;
+// };
+
+// window.nextImage = function() {
+//     window.currentImageIndex = (window.currentImageIndex + 1) % window.carouselData.length;
+//     window.updateCarousel();
+// };
+
+// window.prevImage = function() {
+//     window.currentImageIndex = (window.currentImageIndex - 1 + window.carouselData.length) % window.carouselData.length;
+//     window.updateCarousel();
+// };
 
 window.switchTab = function(tabName, productId) {
     const box = document.getElementById('tab-content-box');
@@ -886,7 +917,7 @@ function renderHomePage() {
 
         <!-- 1. Animated Hero Banner -->
         <div class="hero-banner">
-            <h1 style="font-size: 3.5rem; margin-bottom: 15px; animation: fadeSlideUp 1s ease-out;">Indigenous Precision for Modern Science</h1>
+            <h1 style="font-size: 3.5rem; margin-bottom: 15px; animation: fadeSlideUp 1s ease-out;color: #aaff79;">Indigenous Precision for Modern Science</h1>
             <p style="font-size: 1.2rem; max-width: 700px; margin-bottom: 30px; color: #e2e8f0; animation: fadeSlideUp 1s ease-out 0.2s backwards;">Explore our high-purity cellular assays, custom microscopy media, and contamination control kits manufactured right here in India.</p>
             <button onclick="window.location.hash = '#all-products'" style="background: #3b82f6; color: white; padding: 15px 40px; border: none; border-radius: 30px; font-weight: bold; font-size: 1.1rem; cursor: pointer; transition: background 0.3s; animation: fadeSlideUp 1s ease-out 0.4s backwards;" onmouseover="this.style.backgroundColor='#2563eb'" onmouseout="this.style.backgroundColor='#3b82f6'">
                 Explore Catalog &rarr;

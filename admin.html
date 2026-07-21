@@ -243,25 +243,36 @@
         }
 
         // --- ARCHIVE FUNCTION ---
+        // --- ARCHIVE FUNCTION ---
         async function archiveProduct(productId) {
             if (!confirm("Are you sure you want to archive this product? It will be hidden from the catalog.")) return;
 
+            // Grab the password from the top form
+            const adminPassword = document.getElementById('admin-pass').value;
+            if (!adminPassword) {
+                alert("Please enter the Admin Password in the top 'Add Product' form to authorize archiving.");
+                return;
+            }
+
             try {
                 const response = await fetch(`${API_URL}/products/${productId}/archive`, {
-                    method: 'PUT'
+                    method: 'PUT',
+                    headers: {
+                        'X-Admin-Token': adminPassword // Send the password
+                    }
                 });
 
                 if (response.ok) {
                     fetchAdminProducts(); // Refresh the list
                 } else {
-                    alert("Failed to archive product.");
+                    alert("Failed to archive product. Please check your admin password.");
                 }
             } catch (error) {
                 console.error("Error archiving:", error);
             }
         }
 
-        // --- OPEN EDIT MODAL ---
+        // --- OPEN EDIT MODAL (Unchanged, included for context) ---
         function openEditModal(id, name, price, desc) {
             document.getElementById('edit-name').value = name;
             document.getElementById('edit-price').value = price;
@@ -273,6 +284,13 @@
 
         // --- SUBMIT EDITS ---
         async function submitEditProduct(productId) {
+            // Grab the password from the top form
+            const adminPassword = document.getElementById('admin-pass').value;
+            if (!adminPassword) {
+                alert("Please enter the Admin Password in the top 'Add Product' form to authorize edits.");
+                return;
+            }
+
             const updatedData = {
                 name: document.getElementById('edit-name').value,
                 price: parseFloat(document.getElementById('edit-price').value),
@@ -282,7 +300,10 @@
             try {
                 const response = await fetch(`${API_URL}/products/${productId}`, {
                     method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'X-Admin-Token': adminPassword // Send the password
+                    },
                     body: JSON.stringify(updatedData)
                 });
 
@@ -290,7 +311,7 @@
                     document.getElementById('edit-modal').style.display = 'none';
                     fetchAdminProducts();
                 } else {
-                    alert("Update failed.");
+                    alert("Update failed. Please check your admin password.");
                 }
             } catch (error) {
                 console.error("Error updating:", error);
