@@ -33,7 +33,7 @@
                 <th>Buyer Name</th>
                 <th>Email</th>
                 <th>Company</th>
-                <th>Email Status</th>
+                <th>Requested Items</th> <th>Email Status</th>
             </tr>
         </thead>
         <tbody id="quotes-table-body">
@@ -352,13 +352,14 @@
             }
 
             // Create a new row for each lead
+            // Create a new row for each lead
             const rowHtml = `
                 <tr>
                     <td>#${quote.id}</td>
                     <td>${quote.buyer_name}</td>
                     <td>${quote.buyer_email}</td>
                     <td>${quote.company || "N/A"}</td>
-                    <td style="${statusStyle}">${quote.status}</td>
+                    <td style="font-weight: 500; color: #1e40af;">${quote.items_summary || "No items"}</td> <td style="${statusStyle}">${quote.status}</td>
                 </tr>
             `;
             tableBody.insertAdjacentHTML('beforeend', rowHtml);
