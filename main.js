@@ -127,10 +127,55 @@ function filterCategory(categoryId) {
     document.getElementById('nav-links').classList.remove('active'); 
     const contentArea = document.getElementById('app-content');
     
-    const catNames = {1: "Cellular Assays", 2: "Microscopy", 3: "Mycoplasma"};
+    const categoryDetails = {
+        1: { 
+            title: "Cellular Assays", 
+            desc: "Robust assays and tools for your Cell Biology Research",
+            img: "assets/cellular-banner.jpg" 
+        },
+        2: { 
+            title: "Microscopy", 
+            desc: "Advanced reagents and equipment for precise imaging",
+            img: "assets/microscopy-banner.jpg" 
+        },
+        3: { 
+            title: "Mycoplasma", 
+            desc: "Reliable detection, elimination, and prevention solutions",
+            img: "assets/mycoplasma-banner.jpg" 
+        }
+    };
     
+    const currentCategory = categoryDetails[categoryId] || { 
+        title: "Products", 
+        desc: "Explore our catalog",
+        img: "assets/default-banner.jpg"
+    };
+    
+    // Inject the Banner using the full-width CSS trick
     contentArea.innerHTML = `
-        <h2 style="margin-bottom: 20px;">${catNames[categoryId]}</h2>
+        <!-- Full-Bleed Dynamic Category Banner -->
+        <div style="
+            width: 100vw; 
+            position: relative; 
+            left: 50%; 
+            right: 50%; 
+            margin-left: -50vw; 
+            margin-right: -50vw;
+            box-sizing: border-box;
+            background: linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%);<!--bg image usign url was here-->
+            background-size: cover;
+            background-position: center;
+            color: white; 
+            padding: 80px 20px; 
+            margin-bottom: 40px; 
+            text-align: center; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);">
+            
+            <h1 style="margin: 0 0 10px 0; color:#ffffff; font-size: 2.8rem; letter-spacing: 0.5px;">${currentCategory.title}</h1>
+            <p style="margin: 0; font-size: 1.1rem; opacity: 0.9; max-width: 600px; margin-left: auto; margin-right: auto;">${currentCategory.desc}</p>
+        </div>
+
+        <!-- Product Grid -->
         <div id="product-list" class="product-grid"></div>
     `;
     
@@ -152,7 +197,7 @@ function viewProduct(productId) {
     // NEW: Split the comma-separated string from the database into an array
     // If no images exist, fallback to a placeholder
     window.currentProductImages = product.images ? product.images.split(',') : ['images/placeholder.jpg'];
-    window.currentImageCaptions = product.image_captions ? product.image_captions.split(',') : ['Product Image'];
+    // window.currentImageCaptions = product.image_captions ? product.image_captions.split(',') : ['Product Image'];
     window.currentImageIndex = 0; // Reset carousel for new product
 
     const catNo = product.catalog_number || `OS-PROD-${product.id}`;
@@ -205,14 +250,14 @@ function viewProduct(productId) {
                     </div>
                 </div>
 
-                <a href="${downloadPath}" onclick="showToast('Downloading document...', 'success')" style="display: flex; align-items: center; justify-content: center; gap: 8px; background: white; border: 1px solid #cbd5e1; color: var(--text-main); padding: 12px; border-radius: 4px; font-weight: 500; text-align: center; text-decoration: none;">
+                <!--<a href="${downloadPath}" onclick="showToast('Downloading document...', 'success')" style="display: flex; align-items: center; justify-content: center; gap: 8px; background: white; border: 1px solid #cbd5e1; color: var(--text-main); padding: 12px; border-radius: 4px; font-weight: 500; text-align: center; text-decoration: none;">
                     📄 Download Full Protocol Datasheet (PDF)
-                </a>
+                </a>-->
             </div>
         </div>
 
         <!-- 3 Tabs Layout -->
-        <div style="max-width: 1200px; margin: 30px auto 0 auto; background: white; border-radius: 8px; border: 1px solid #e2e8f0; overflow: hidden;">
+        <!--<div style="max-width: 1200px; margin: 30px auto 0 auto; background: white; border-radius: 8px; border: 1px solid #e2e8f0; overflow: hidden;">
             <div style="display: flex; background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
                 <button id="tab-btn-overview" onclick="switchTab('overview', ${product.id})" style="padding: 15px 25px; border: none; background: white; font-weight: 600; color: var(--primary-blue); border-top: 2px solid var(--primary-blue); border-right: 1px solid #e2e8f0; cursor: pointer;">Product Overview</button>
                 <button id="tab-btn-support" onclick="switchTab('support', ${product.id})" style="padding: 15px 25px; border: none; background: transparent; font-weight: 600; color: var(--text-light); border-right: 1px solid #e2e8f0; cursor: pointer; border-top: 2px solid transparent;">Technical Support</button>
@@ -221,7 +266,7 @@ function viewProduct(productId) {
             <div id="tab-content-box" style="padding: 30px; line-height: 1.6; color: var(--text-main);">
                 ${product.specs_html || "<p>Data pending.</p>"}
             </div>
-        </div>
+        </div>-->
     `;
 }
 // Carousel State Management
@@ -816,10 +861,10 @@ function renderHomePage() {
         <style>
             /* Crossfade Animation for Hero Background */
             @keyframes bannerFade {
-                0%, 30% { background-image: linear-gradient(rgba(15,23,42,0.7), rgba(15,23,42,0.8)), url('https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80'); }
-                33%, 63% { background-image: linear-gradient(rgba(15,23,42,0.7), rgba(15,23,42,0.8)), url('https://images.unsplash.com/photo-1576086213369-97a306d36557?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80'); }
-                66%, 97% { background-image: linear-gradient(rgba(15,23,42,0.7), rgba(15,23,42,0.8)), url('https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80'); }
-                100% { background-image: linear-gradient(rgba(15,23,42,0.7), rgba(15,23,42,0.8)), url('https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80'); }
+                0%, 30% { background-image: linear-gradient(rgba(15,23,42,0.7), rgba(15,23,42,0.8)), url('./Assets/home/WT 48H woC ben-dcfda n7_Series002 Snapshot1_ch00.jpg'); }
+                33%, 63% { background-image: linear-gradient(rgba(15,23,42,0.7), rgba(15,23,42,0.8)), url('./Assets/home/Optimum-0003 B.jpg'); }
+                66%, 97% { background-image: linear-gradient(rgba(15,23,42,0.7), rgba(15,23,42,0.8)), url('./Assets/home/C1-microscopy.lif - Series001.jpg'); }
+                100% { background-image: linear-gradient(rgba(15,23,42,0.7), rgba(15,23,42,0.8)), url('./Assets/home/Capture.PNG'); }
             }
             
             /* FULL BLEED Hero Banner */
@@ -922,10 +967,10 @@ function renderHomePage() {
 
         <!-- 1. Animated Hero Banner -->
         <div class="hero-banner">
-            <h1 style="font-size: 3.5rem; margin-bottom: 15px; animation: fadeSlideUp 1s ease-out;color: #aaff79;">Indigenous Precision for Modern Science</h1>
-            <p style="font-size: 1.2rem; max-width: 700px; margin-bottom: 30px; color: #e2e8f0; animation: fadeSlideUp 1s ease-out 0.2s backwards;">Explore our high-purity cellular assays, custom microscopy media, and contamination control kits manufactured right here in India.</p>
+            <h1 style="font-size: 3.5rem; margin-bottom: 15px; animation: fadeSlideUp 1s ease-out;color: #ffffff;">Advancing Science that Delivers</h1>
+            <p style="font-size: 1.2rem; max-width: 700px; margin-bottom: 30px; color: #e2e8f0; animation: fadeSlideUp 1s ease-out 0.2s backwards;">Discover our range of Cellular Assays, custom Microscopy Media and Contamination Control kits</p>
             <button onclick="window.location.hash = '#all-products'" style="background: #3b82f6; color: white; padding: 15px 40px; border: none; border-radius: 30px; font-weight: bold; font-size: 1.1rem; cursor: pointer; transition: background 0.3s; animation: fadeSlideUp 1s ease-out 0.4s backwards;" onmouseover="this.style.backgroundColor='#2563eb'" onmouseout="this.style.backgroundColor='#3b82f6'">
-                Explore Catalog &rarr;
+                Explore our Products &rarr;
             </button>
         </div>
 
@@ -951,51 +996,10 @@ function renderHomePage() {
             </a>
         </div>
 
-        <!-- 4. Case Studies Card Marquee -->
-        <div style="text-align: center; margin-bottom: 20px; margin-top: 40px;">
-            <h2 style="margin-bottom: 10px;">Trusted by India's Top Institutes</h2>
-        </div>
         
-        <div class="marquee-container">
-            <div class="marquee-content">
-                <div class="testimonial-card">
-                    <div style="color: #f59e0b; margin-bottom: 10px;">⭐⭐⭐⭐⭐</div>
-                    <p style="font-style: italic; color: #334155; margin-bottom: 15px;">"The Mycoplasma qPCR kit rivaled our imported standards, but arrived in 2 days instead of 3 weeks."</p>
-                    <strong style="color: #0f172a;">— PI, Cell Biology, IISER Pune</strong>
-                </div>
-                <div class="testimonial-card">
-                    <div style="color: #f59e0b; margin-bottom: 10px;">⭐⭐⭐⭐⭐</div>
-                    <p style="font-style: italic; color: #334155; margin-bottom: 15px;">"Switched to their Calcein AM for our high-throughput screens. The signal-to-noise ratio is fantastic."</p>
-                    <strong style="color: #0f172a;">— Senior Scientist, NIPER</strong>
-                </div>
-                <div class="testimonial-card">
-                    <div style="color: #f59e0b; margin-bottom: 10px;">⭐⭐⭐⭐⭐</div>
-                    <p style="font-style: italic; color: #334155; margin-bottom: 15px;">"The transparent batch validation and immediate technical support saved us a massive headache."</p>
-                    <strong style="color: #0f172a;">— Postdoctoral Fellow, NCBS</strong>
-                </div>
-                <!-- Duplicates -->
-                <div class="testimonial-card">
-                    <div style="color: #f59e0b; margin-bottom: 10px;">⭐⭐⭐⭐⭐</div>
-                    <p style="font-style: italic; color: #334155; margin-bottom: 15px;">"The Mycoplasma qPCR kit rivaled our imported standards, but arrived in 2 days instead of 3 weeks."</p>
-                    <strong style="color: #0f172a;">— PI, Cell Biology, IISER Pune</strong>
-                </div>
-                <div class="testimonial-card">
-                    <div style="color: #f59e0b; margin-bottom: 10px;">⭐⭐⭐⭐⭐</div>
-                    <p style="font-style: italic; color: #334155; margin-bottom: 15px;">"Switched to their Calcein AM for our high-throughput screens. The signal-to-noise ratio is fantastic."</p>
-                    <strong style="color: #0f172a;">— Senior Scientist, NIPER</strong>
-                </div>
-                <div class="testimonial-card">
-                    <div style="color: #f59e0b; margin-bottom: 10px;">⭐⭐⭐⭐⭐</div>
-                    <p style="font-style: italic; color: #334155; margin-bottom: 15px;">"The transparent batch validation and immediate technical support saved us a massive headache."</p>
-                    <strong style="color: #0f172a;">— Postdoctoral Fellow, NCBS</strong>
-                </div>
-            </div>
-        </div>
-        <div style="text-align: center; margin-top: 30px; padding-bottom: 40px;">
-            <a href="#testimonials" style="color: #3b82f6; font-weight: bold; text-decoration: none; font-size: 1.1rem;">Read All Case Studies &rarr;</a>
-        </div>
     `;
-}function renderTestimonialsPage() {
+}
+function renderTestimonialsPage() {
     const contentArea = document.getElementById('app-content');
     
     contentArea.innerHTML = `
@@ -1486,3 +1490,46 @@ initializeCatalog().then(() => {
 //         <p>Because these internal micro-components possess zero corresponding biological targets inside standard eukaryotic cells, treatment remains highly safe and localized for mammalian cell lines.</p>
 //     `;
 // }
+// <!-- 4. Case Studies Card Marquee -->
+//         <div style="text-align: center; margin-bottom: 20px; margin-top: 40px;">
+//             <h2 style="margin-bottom: 10px;">Trusted by India's Top Institutes</h2>
+//         </div>
+        
+//         <div class="marquee-container">
+//             <div class="marquee-content">
+//                 <div class="testimonial-card">
+//                     <div style="color: #f59e0b; margin-bottom: 10px;">⭐⭐⭐⭐⭐</div>
+//                     <p style="font-style: italic; color: #334155; margin-bottom: 15px;">"The Mycoplasma qPCR kit rivaled our imported standards, but arrived in 2 days instead of 3 weeks."</p>
+//                     <strong style="color: #0f172a;">— PI, Cell Biology, IISER Pune</strong>
+//                 </div>
+//                 <div class="testimonial-card">
+//                     <div style="color: #f59e0b; margin-bottom: 10px;">⭐⭐⭐⭐⭐</div>
+//                     <p style="font-style: italic; color: #334155; margin-bottom: 15px;">"Switched to their Calcein AM for our high-throughput screens. The signal-to-noise ratio is fantastic."</p>
+//                     <strong style="color: #0f172a;">— Senior Scientist, NIPER</strong>
+//                 </div>
+//                 <div class="testimonial-card">
+//                     <div style="color: #f59e0b; margin-bottom: 10px;">⭐⭐⭐⭐⭐</div>
+//                     <p style="font-style: italic; color: #334155; margin-bottom: 15px;">"The transparent batch validation and immediate technical support saved us a massive headache."</p>
+//                     <strong style="color: #0f172a;">— Postdoctoral Fellow, NCBS</strong>
+//                 </div>
+//                 <!-- Duplicates -->
+//                 <div class="testimonial-card">
+//                     <div style="color: #f59e0b; margin-bottom: 10px;">⭐⭐⭐⭐⭐</div>
+//                     <p style="font-style: italic; color: #334155; margin-bottom: 15px;">"The Mycoplasma qPCR kit rivaled our imported standards, but arrived in 2 days instead of 3 weeks."</p>
+//                     <strong style="color: #0f172a;">— PI, Cell Biology, IISER Pune</strong>
+//                 </div>
+//                 <div class="testimonial-card">
+//                     <div style="color: #f59e0b; margin-bottom: 10px;">⭐⭐⭐⭐⭐</div>
+//                     <p style="font-style: italic; color: #334155; margin-bottom: 15px;">"Switched to their Calcein AM for our high-throughput screens. The signal-to-noise ratio is fantastic."</p>
+//                     <strong style="color: #0f172a;">— Senior Scientist, NIPER</strong>
+//                 </div>
+//                 <div class="testimonial-card">
+//                     <div style="color: #f59e0b; margin-bottom: 10px;">⭐⭐⭐⭐⭐</div>
+//                     <p style="font-style: italic; color: #334155; margin-bottom: 15px;">"The transparent batch validation and immediate technical support saved us a massive headache."</p>
+//                     <strong style="color: #0f172a;">— Postdoctoral Fellow, NCBS</strong>
+//                 </div>
+//             </div>
+//         </div>
+//         <div style="text-align: center; margin-top: 30px; padding-bottom: 40px;">
+//             <a href="#testimonials" style="color: #3b82f6; font-weight: bold; text-decoration: none; font-size: 1.1rem;">Read All Case Studies &rarr;</a>
+//         </div>
