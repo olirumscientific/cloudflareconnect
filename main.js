@@ -930,7 +930,7 @@ function renderHomePage() {
         </div>
 
         <!-- 2. Fast Text Ticker -->
-        <div class="ticker-wrap">
+       <!-- <div class="ticker-wrap">
             <div class="ticker">
                 <div class="ticker-item">⭐⭐⭐⭐⭐ "The qPCR kit eliminated our false positives." - Dr. Sharma, IISc</div>
                 <div class="ticker-item">⭐⭐⭐⭐⭐ "Saved us weeks of waiting on customs." - Lab Director, NIPER</div>
@@ -940,7 +940,7 @@ function renderHomePage() {
                 <div class="ticker-item">⭐⭐⭐⭐⭐ "Saved us weeks of waiting on customs." - Lab Director, NIPER</div>
                 <div class="ticker-item">⭐⭐⭐⭐⭐ "Calcein AM viability was perfectly reproducible." - Biotech Startup, Pune</div>
             </div>
-        </div>
+        </div>-->
 
         <!-- 3. Auto-Spaced Categories -->
         <h2 style="text-align: center; margin-top: 40px; margin-bottom: 30px; color: #0f172a;">Shop by Application</h2>
